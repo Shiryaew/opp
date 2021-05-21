@@ -1,29 +1,43 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import {
+  View,
+  StyleSheet
+} from 'react-native';
 import CalendarStrip from 'react-native-calendar-strip';
+
 import { withState } from '../../hoc/withState';
 import Items from '../../components/Items';
+import AddItem from '../../components/AddItem';
 
 class Event extends React.Component {
+
+  onPress = () => {
+    const { navigation } = this.props;
+    navigation.navigate('create-event');
+  }
+
   render() {
-    const { curDate, onDateSelected } = this.props;
+    const { onDateSelected } = this.props;
     return (
-      <View /* style={styles.event} */>
-        <CalendarStrip style={{ borderWidth: 1, height: 100 }}
+      <View>
+        <CalendarStrip style={styles.week}
           scrollable={true}
           scrollerPaging={true}
           onDateSelected={onDateSelected}
         />
         <Items />
+        <AddItem
+          onPress={this.onPress}
+        />
       </View>
     )
   }
 }
 
-const styles = StyleSheet.create({
-  event: {
-    marginTop: 50,
-  },
-});
-
 export default withState(Event);
+
+const styles = StyleSheet.create({
+  week: {
+    height: 100,
+  }
+});

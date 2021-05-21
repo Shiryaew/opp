@@ -1,40 +1,81 @@
 import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import Item from '../components/Item';
 import { AppState } from './Index';
 import { createEvent } from '../utils';
-import Item from '../components/Item';
 
 class Store extends React.Component {
   state = {
-    listEvents: [{ id: 1, day: new Date(), name: 'qq1' }, { id: 2, day: new Date(), name: 'qq2' }],
+    listEvents: [],
     curDate: new Date(),
+    eventName: '',
   }
 
-  addItem = (/* day, */ name) => {
-    const { listEvents, curDate } = this.state;
-    if (name != "") {
-      listEvents.push(createEvent(curDate, name));
-      this.setState({ listEvents });
+  componentDidMount() {
+    this.init()
+  }
+
+  init = async () => {
+    try {
+      const persistedStatelistEvents = await AsyncStorage.getItem('listEvents');
+      if (!persistedStatelistEvents) return
+      this.setState({
+        listEvents: JSON.parse(persistedStatelistEvents),
+      })
+    } catch (e) {
+      console.error(e)
     }
+  }
+
+  persistState = (newState) => {
+    this.setState(newState, async () => {
+      try {
+        await AsyncStorage.setItem('listEvents', JSON.stringify(this.state.listEvents))
+      } catch (e) {
+        console.error(e)
+      }
+    })
+  }
+
+  addItem = () => {
+    const { listEvents, curDate, eventName } = this.state;
+    if (eventName != "") {
+      let event = createEvent(curDate, eventName);
+      listEvents.push(event);
+      this.persistState({ listEvents });
+    }
+    console.log(this.state);
+  }
+
+  getProductIndexById = (id) => {
+    return this.state.listEvents.findIndex((event) => { return event.id === id })
+  }
+
+  deleteItem = (id) => {
+    const { listEvents } = this.state;
+    listEvents.splice(this.getProductIndexById(id), 1);
+    this.persistState({ listEvents });
   }
 
   onDateSelected = (date) => {
     console.log(date.toString());
-    //let day = Date(date);
-    //console.log(day);
-    //const { curDate } = this.state;
     this.setState({ curDate: date });
   }
 
+  onChangeText = (name) => {
+    this.setState({ eventName: name });
+    console.log(this.state);
+  }
 
   renderItem = ({ item }) => {
-    console.log(item.day.toString());
+    console.log(item.date.toString());
     return (
       <Item
         {...item}
       />
     )
   }
-
 
   render() {
     return (
@@ -44,7 +85,10 @@ class Store extends React.Component {
           renderItem: this.renderItem,
           listEvents: this.state.listEvents,
           curDate: this.state.curDate,
+          eventName: this.state.eventName,
           onDateSelected: this.onDateSelected,
+          onChangeText: this.onChangeText,
+          deleteItem: this.deleteItem,
         }}
       >
         {this.props.children}

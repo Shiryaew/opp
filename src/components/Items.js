@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList } from 'react-native';
+import { FlatList, StyleSheet, Dimensions } from 'react-native';
 import { withState } from '../hoc/withState';
 
 class Items extends React.Component {
@@ -7,6 +7,7 @@ class Items extends React.Component {
     const { renderItem, listEvents } = this.props
     return (
       <FlatList
+        style={styles.list}
         data={listEvents}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -16,3 +17,12 @@ class Items extends React.Component {
 }
 
 export default withState(Items);
+
+const styles = StyleSheet.create({
+  list: {
+    marginTop: 25,
+    width: Dimensions.get("window").width,
+    borderColor: 'lightgray',
+    borderTopWidth: 1,
+  }
+})

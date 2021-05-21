@@ -12,6 +12,8 @@ target 'apptime' do
     :hermes_enabled => false
   )
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'apptimeTests' do
     inherit! :complete
     # Pods for testing
